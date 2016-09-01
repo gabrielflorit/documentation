@@ -47,6 +47,23 @@ test('flowDoctrine', function (t) {
       type: 'AllLiteral'
     }, 'all');
 
+  t.deepEqual(toDoctrineType('(y:Foo) => Bar'),
+    {
+      type: 'FunctionType',
+      params: [{
+        type: 'ParameterType',
+        name: 'y',
+        expression: {
+          type: 'NameExpression',
+          name: 'Foo'
+        }
+      }],
+      result: {
+        type: 'NameExpression',
+        name: 'Bar'
+      }
+    }, 'function type');
+
   t.deepEqual(toDoctrineType('?number'),
     {
       type: 'NullableType',

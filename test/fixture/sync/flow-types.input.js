@@ -57,3 +57,6 @@ function optionalFunc(x: number = 42) {}
  * Function with object parameter.
  */
 function objectParamFn(x: { a: number }) {}
+
+/** hi */
+function objectParamFn(x: (y:Foo) => Bar) {}
