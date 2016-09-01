@@ -17,7 +17,7 @@ function toComment(fn, filename) {
 test('flowDoctrine', function (t) {
 
   var types = FLOW_TYPES.filter(function (type) {
-    return type.match(/TypeAnnotation$/);
+    return type.match(/\wTypeAnnotation$/);
   });
 
   function toDoctrineType(flowType) {
