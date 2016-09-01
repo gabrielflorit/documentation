@@ -52,3 +52,8 @@ function veryImportantTransform(
  * Function with optional parameter.
  */
 function optionalFunc(x: number = 42) {}
+
+/**
+ * Function with object parameter.
+ */
+function objectParamFn(x: { a: number }) {}

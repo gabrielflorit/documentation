@@ -2,6 +2,7 @@
 
 var flowDoctrine = require('../../lib/flow_doctrine.js'),
   parse = require('../../lib/parsers/javascript'),
+  FLOW_TYPES = require('babel-types').FLOW_TYPES,
   test = require('tap').test;
 
 function toComment(fn, filename) {
@@ -11,13 +12,23 @@ function toComment(fn, filename) {
   })[0];
 }
 
-function toDoctrineType(flowType) {
-  return flowDoctrine(toComment(
-      '/** add */function add(a: ' + flowType + ' ) { }'
-    ).context.ast.node.params[0].typeAnnotation.typeAnnotation);
-}
+
 
 test('flowDoctrine', function (t) {
+
+  var types = FLOW_TYPES.filter(function (type) {
+    return type.match(/TypeAnnotation$/);
+  });
+
+  function toDoctrineType(flowType) {
+    var annotation = toComment(
+      '/** add */function add(a: ' + flowType + ' ) { }'
+    ).context.ast.node.params[0].typeAnnotation.typeAnnotation;
+    if (types.indexOf(annotation.type) !== -1) {
+      types.splice(types.indexOf(annotation.type), 1);
+    }
+    return flowDoctrine(annotation);
+  }
 
   t.deepEqual(toDoctrineType('number'),
     {
@@ -65,6 +76,24 @@ test('flowDoctrine', function (t) {
       type: 'NameExpression',
       name: 'Object'
     }, 'object');
+
+  t.deepEqual(toDoctrineType('{ a: 1 }'),
+    {
+      type: 'RecordType',
+      fields: [{
+        type: 'FieldType',
+        key: 'a',
+        value: {
+          type: 'NumberLiteral',
+          name: 1
+        }
+      }]
+    }, 'object with properties');
+
+  t.deepEqual(toDoctrineType('mixed'),
+    {
+      type: 'AllLiteral'
+    }, 'alias mixed to any for now');
 
   t.deepEqual(toDoctrineType('Array'),
     {
@@ -175,6 +204,8 @@ test('flowDoctrine', function (t) {
     {
       type: 'VoidLiteral',
     }, 'VoidLiteral');
+
+  t.deepEqual(types, []);
 
   t.end();
 });
